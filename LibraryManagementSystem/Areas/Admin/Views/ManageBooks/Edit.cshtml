@@ -1,0 +1,101 @@
+﻿@model LibraryManagementSystem.Models.Book
+@{
+    var categories = ViewData["Categories"] as List<string> ?? new List<string>();
+}
+<div class="modal-header">
+    <h5 class="modal-title" id="editBookModalLabel">
+        <i class="bi bi-pencil me-2"></i>Edit Book
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<form asp-action="Edit" method="post" asp-route-id="@Model.Id" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="CoverImagePath" />
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label">Title</label>
+                    <input asp-for="Title" class="form-control" required />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Author" class="form-label">Author</label>
+                    <input asp-for="Author" class="form-control" required />
+                    <span asp-validation-for="Author" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="ISBN" class="form-label">ISBN</label>
+                    <input asp-for="ISBN" class="form-control" />
+                    <span asp-validation-for="ISBN" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Category" class="form-label">Category</label>
+                    <select asp-for="Category" class="form-select" required>
+                        <option value="">-- Select Category --</option>
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category" selected="@(category == Model.Category ? "selected" : null)">
+                                @category
+                            </option>
+                        }
+                        @if (!categories.Any())
+                        {
+                            <option value="Fiction">Fiction</option>
+                            <option value="Science">Science</option>
+                            <option value="History">History</option>
+                            <option value="Biography">Biography</option>
+                            <option value="Technology">Technology</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Category" class="text-danger"></span>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="TotalCopies" class="form-label">Total Copies</label>
+                            <input asp-for="TotalCopies" class="form-control" type="number" min="1" required />
+                            <span asp-validation-for="TotalCopies" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="AvailableCopies" class="form-label">Available Copies</label>
+                            <input asp-for="AvailableCopies" class="form-control" type="number" min="0" required />
+                            <span asp-validation-for="AvailableCopies" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="editCoverImage" class="form-label">Book Cover</label>
+                    <input type="file" class="form-control" id="editCoverImage" name="CoverImage" accept="image/*" />
+                    <div class="form-text">Upload a new cover image (JPG, PNG, GIF)</div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.CoverImagePath))
+                {
+                    <div class="text-center mt-3">
+                        <p class="small text-muted mb-2">Current Cover:</p>
+                        <img src="@Model.CoverImagePath" alt="Current Cover"
+                             class="img-fluid rounded shadow-sm"
+                             style="max-height: 200px;" />
+                    </div>
+                }
+
+                <div id="editImagePreview" class="text-center mt-3" style="display: none;">
+                    <p class="small text-muted mb-2">New Cover Preview:</p>
+                    <img id="editPreviewImg" class="img-fluid rounded shadow-sm" style="max-height: 200px;" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-warning">
+            <i class="bi bi-check-circle me-1"></i>Save Changes
+        </button>
+    </div>
+</form>

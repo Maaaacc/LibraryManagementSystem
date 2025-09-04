@@ -1,0 +1,19 @@
+﻿@model Borrow
+
+@{
+    ViewData["Title"] = "Return Book";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="alert alert-warning">
+    <strong>Confirm Return</strong>
+    <p>Are you sure you want to return the book"
+    <strong>@Model.Book.Title</strong>" borrowed on @Model.BorrowedAt:d?</p>
+</div>
+
+<form asp-action="Return" method="post">
+    <input type="hidden" asp-for="Id"/>
+    <button type="submit" class="btn btn-primary">Return Book</button>
+    <a asp-action="MyBorrows" class="btn btn-secondary">Cancel</a>
+</form>

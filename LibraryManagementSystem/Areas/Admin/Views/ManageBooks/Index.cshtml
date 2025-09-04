@@ -1,0 +1,455 @@
+﻿@model BookSearchViewModel
+@{
+    ViewData["Title"] = "Manage Books";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p class="text-secondary">Manage your library's book collection</p>
+
+<!-- Search and Filter Section -->
+<div class="card summary-card mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <input asp-for="SearchString" placeholder="Search by Title, Author, ISBN" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <select asp-for="Category" class="form-select">
+                    <option value="">All Categories</option>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category" selected="@(category == Model.Category ? "selected" : null)">
+                            @category
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select asp-for="AvailableOnly" class="form-select">
+                    <option value="False">All Books</option>
+                    <option value="True">Available Only</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search me-1"></i>Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add New Book Button -->
+<div class="mb-3">
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createBookModal">
+        <i class="bi bi-plus-circle me-2"></i>Add New Book
+    </button>
+</div>
+
+<!-- Books Table -->
+<div class="card summary-card">
+    <div class="card-body p-0">
+        @if (Model.Books.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 80px;" class="ps-3">Cover</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Category</th>
+                            <th>ISBN</th>
+                            <th style="width: 150px;">Available Copies</th>
+                            <th style="width: 200px;" class="pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var book in Model.Books)
+                        {
+                            var available = book.AvailableCopies;
+                            var total = book.TotalCopies;
+                            var availableDisplay = available > 0
+                            ? $"{available} / {total} Available"
+                            : $"{available} / {total} All Borrowed";
+                            var badgeClass = available > 0 ? "badge bg-success" : "badge bg-danger";
+
+                            <tr>
+                                <td class="ps-3">
+                                    @if (!string.IsNullOrEmpty(book.CoverImagePath))
+                                    {
+                                        <img src="@book.CoverImagePath" alt="@book.Title"
+                                             style="height: 60px; width: 45px; object-fit: cover;"
+                                             class="rounded shadow-sm" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                             style="height: 60px; width: 45px;">
+                                            <i class="bi bi-book text-muted"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">@book.Title</div>
+                                </td>
+                                <td class="text-muted">@book.Author</td>
+                                <td>
+                                    <span class="badge bg-light text-dark">@book.Category</span>
+                                </td>
+                                <td class="text-muted small">@book.ISBN</td>
+                                <td>
+                                    <span class="@badgeClass">@availableDisplay</span>
+                                </td>
+                                <td class="pe-3">
+                                    <div class="d-flex gap-1">
+                                        <button type="button" class="btn btn-warning btn-sm"
+                                                onclick="loadEditModal(@book.Id)"
+                                                title="Edit Book"
+                                                data-bs-toggle="tooltip">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm"
+                                                onclick="loadDeleteModal(@book.Id)"
+                                                title="Delete Book"
+                                                data-bs-toggle="tooltip">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-book text-muted" style="font-size: 4rem;"></i>
+                <h4 class="text-muted mt-3">No Books Found</h4>
+                <p class="text-muted">Try adjusting your search criteria or add a new book to get started.</p>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createBookModal">
+                    <i class="bi bi-plus-circle me-2"></i>Add Your First Book
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Create Book Modal -->
+<div class="modal fade" id="createBookModal" tabindex="-1" aria-labelledby="createBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createBookModalLabel">
+                    <i class="bi bi-plus-circle me-2"></i>Add New Book
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createBookForm" asp-action="Create" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="createTitle" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="createTitle" name="Title" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="createAuthor" class="form-label">Author</label>
+                                <input type="text" class="form-control" id="createAuthor" name="Author" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="createISBN" class="form-label">ISBN</label>
+                                <input type="text" class="form-control" id="createISBN" name="ISBN" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="createCategory" class="form-label">Category</label>
+                                <select class="form-select" id="createCategory" name="Category" required>
+                                    <option value="">-- Select Category --</option>
+                                    @foreach (var category in Model.Categories)
+                                    {
+                                        <option value="@category">@category</option>
+                                    }
+                                    @if (!Model.Categories.Any())
+                                    {
+                                        <option value="Fiction">Fiction</option>
+                                        <option value="Science">Science</option>
+                                        <option value="History">History</option>
+                                        <option value="Biography">Biography</option>
+                                        <option value="Technology">Technology</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="createTotalCopies" class="form-label">Total Copies</label>
+                                        <input type="number" class="form-control" id="createTotalCopies" name="TotalCopies" min="1" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="createAvailableCopies" class="form-label">Available Copies</label>
+                                        <input type="number" class="form-control" id="createAvailableCopies" name="AvailableCopies" min="0" required />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="createCoverImage" class="form-label">Book Cover</label>
+                                <input type="file" class="form-control" id="createCoverImage" name="CoverImage" accept="image/*" />
+                                <div class="form-text">Upload a cover image (JPG, PNG, GIF)</div>
+                            </div>
+                            <div id="createImagePreview" class="text-center mt-3" style="display: none;">
+                                <img id="createPreviewImg" class="img-fluid rounded" style="max-height: 200px;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i>Create Book
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Book Modal -->
+<div class="modal fade" id="editBookModal" tabindex="-1" aria-labelledby="editBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Delete Book Modal -->
+<div class="modal fade" id="deleteBookModal" tabindex="-1" aria-labelledby="deleteBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Image preview for create modal
+        document.getElementById('createCoverImage').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('createImagePreview');
+            const previewImg = document.getElementById('createPreviewImg');
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // Image preview for edit modal (delegated event)
+        document.addEventListener('change', function (e) {
+            if (e.target && e.target.id === 'editCoverImage') {
+                const file = e.target.files[0];
+                const preview = document.getElementById('editImagePreview');
+                const previewImg = document.getElementById('editPreviewImg');
+
+                if (file && preview && previewImg) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewImg.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                } else if (preview) {
+                    preview.style.display = 'none';
+                }
+            }
+        });
+
+        // Load edit modal content
+        function loadEditModal(bookId) {
+            // Show loading state
+            document.querySelector('#editBookModal .modal-content').innerHTML = `
+                        <div class="modal-body text-center py-5">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3">Loading book details...</p>
+                        </div>
+                    `;
+
+            // Show the modal
+            var editModal = new bootstrap.Modal(document.getElementById('editBookModal'));
+            editModal.show();
+
+            // Load the content
+            fetch(`/Admin/ManageBooks/Edit/${bookId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.querySelector('#editBookModal .modal-content').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading edit modal:', error);
+                    document.querySelector('#editBookModal .modal-content').innerHTML = `
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Error</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body text-center py-5">
+                                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                                    <h5 class="mt-3">Error Loading Book</h5>
+                                    <p class="text-muted">Could not load book details. Please try again.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>`;
+                });
+        }
+
+        // Load delete modal content
+        function loadDeleteModal(bookId) {
+            // Show loading state
+            document.querySelector('#deleteBookModal .modal-content').innerHTML = `
+                        <div class="modal-body text-center py-5">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3">Loading book details...</p>
+                        </div>
+                    `;
+
+            // Show the modal
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteBookModal'));
+            deleteModal.show();
+
+            // Load the content
+            fetch(`/Admin/ManageBooks/Delete/${bookId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.querySelector('#deleteBookModal .modal-content').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading delete modal:', error);
+                    document.querySelector('#deleteBookModal .modal-content').innerHTML = `
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Error</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body text-center py-5">
+                                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                                    <h5 class="mt-3">Error Loading Book</h5>
+                                    <p class="text-muted">Could not load book details. Please try again.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>`;
+                });
+        }
+
+        // Handle form submissions for modals - FIXED VERSION
+        document.addEventListener('submit', function (e) {
+            // Check if the form is inside a modal
+            if (e.target.closest('.modal')) {
+                e.preventDefault();
+                const form = e.target;
+                const formData = new FormData(form);
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+
+                // Show loading state on submit button
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(async response => {
+                        const contentType = response.headers.get('content-type');
+
+                        if (response.ok) {
+                            if (contentType && contentType.includes('application/json')) {
+                                const data = await response.json();
+                                if (data.success) {
+                                    showToast("success", data.message || "Operation completed successfully");
+
+                                    const modal = form.closest('.modal');
+                                    const modalInstance = bootstrap.Modal.getInstance(modal);
+                                    modalInstance.hide();
+
+                                    setTimeout(() => location.reload(), 1500);
+                                    return;
+                                } else {
+                                    showToast("error", "Operation failed. Please try again.");
+                                }
+                            } else {
+                                // Successful, but not JSON (e.g., HTML)
+                                showToast("success", "Operation completed successfully");
+                                setTimeout(() => location.reload(), 1500);
+                                return;
+                            }
+                        } else {
+                            const html = await response.text();
+                            const modal = form.closest('.modal');
+                            modal.querySelector('.modal-content').innerHTML = html;
+
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = originalText;
+
+                            showToast("error", "Validation failed. Please check the form and try again.");
+                        }
+
+                    })
+                    .catch(error => {
+                        showToast("error", "Error submitting form. Please try again.");
+                        // Restore button state
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
+
+                    
+                    });
+            }
+        });
+
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+
+        // Clear create form when modal is hidden
+        document.getElementById('createBookModal').addEventListener('hidden.bs.modal', function () {
+            // Reset the form
+            document.getElementById('createBookForm').reset();
+            // Hide image preview
+            document.getElementById('createImagePreview').style.display = 'none';
+        });
+    </script>
+}

@@ -1,0 +1,57 @@
+﻿@model Book
+
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<h2>@Model.Title</h2>
+
+@if (!string.IsNullOrEmpty(Model.CoverImagePath))
+{
+    <img src="@Model.CoverImagePath" alt="Model.Title" style="height:200px;" />
+}
+
+<table class="table">
+    <tr>
+        <th>Author</th>
+        <td>@Model.Author</td>
+    </tr>
+    <tr>
+        <th>ISBN</th>
+        <td>@Model.ISBN</td>
+    </tr>
+    <tr>
+        <td>Category</td>
+        <td>@Model.Category</td>
+    </tr>
+    <tr>
+        <td>Total Copies</td>
+        <td>@Model.TotalCopies</td>
+    </tr>
+    <tr>
+        <td>Available Copies</td>
+        <td>@Model.AvailableCopies</td>
+    </tr>
+</table>
+
+@if (Model.AvailableCopies > 0)
+{
+    if(ViewBag.ActiveBorrowCount >= 3)
+    {
+        <button class="btn btn-warning" disabled>Limit Reached</button>
+
+    }
+    else
+    {
+    <form asp-controller="Borrows" asp-action="Borrow" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="bookId" value="@Model.Id" />
+        <button type="submit" class="btn btn-success">Borrow</button>
+    </form>        
+    }
+
+}
+else
+{
+    <button class="btn btn-secondary" disabled>No Copies Available</button>
+}

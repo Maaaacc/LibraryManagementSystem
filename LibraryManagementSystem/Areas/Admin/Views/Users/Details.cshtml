@@ -1,0 +1,41 @@
+﻿@model ApplicationUser
+
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<h2>User Details</h2>
+
+<table class="table">
+    <tr>
+        <th>Full Name</th>
+        <td>@Model.FullName</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>@Model.Email</td>
+    </tr>
+    <tr>
+        <th>Student ID Number</th>
+        <td>@Model.StudentIdNumber</td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td>@Model.Status</td>
+    </tr>
+    <tr>
+        <th>Student ID Image</th>
+        <td>
+            @if (!string.IsNullOrEmpty(Model.StudentIdImagePath))
+            {
+                <img src="@Model.StudentIdImagePath" alt="Student ID" style="max-width:300px;" />
+            }
+            else
+            {
+                <span>No image uploaded.</span>
+            }
+        </td>
+    </tr>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>
