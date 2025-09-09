@@ -1,53 +1,114 @@
+/* ==========================================================================
+   MINIMAL LIBRARY MANAGEMENT SYSTEM - ENHANCED CSS
+   ========================================================================== */
+
+/* Base Font Sizes */
 html {
     font-size: 14px;
     scrollbar-gutter: stable;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+/* ==========================================================================
+   MINIMAL COLOR SYSTEM
+   ========================================================================== */
+:root {
+    /* Base Colors - Minimal Palette */
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-gray-50: #f8f9fa;
+    --color-gray-100: #f1f3f4;
+    --color-gray-200: #e9ecef;
+    --color-gray-300: #dee2e6;
+    --color-gray-400: #ced4da;
+    --color-gray-500: #adb5bd;
+    --color-gray-600: #6c757d;
+    --color-gray-700: #495057;
+    --color-gray-800: #343a40;
+    --color-gray-900: #212529;
+    /* Accent Colors - Minimal Usage */
+    --color-blue: #0066cc;
+    --color-green: #00b369;
+    --color-yellow: #ff9500;
+    --color-red: #ff3b30;
+    /* Semantic Color Assignments */
+    --color-primary: var(--color-gray-900);
+    --color-secondary: var(--color-gray-600);
+    --color-background: var(--color-white);
+    --color-surface: var(--color-gray-50);
+    --color-border: var(--color-gray-200);
+    --color-text: var(--color-gray-900);
+    --color-text-muted: var(--color-gray-600);
+    --color-text-light: var(--color-gray-500);
+    /* Status Colors */
+    --color-success: var(--color-green);
+    --color-warning: var(--color-yellow);
+    --color-danger: var(--color-red);
+    --color-info: var(--color-blue);
+    /* Shadows - Subtle and Clean */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+    /* Borders and Radius */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-width: 1px;
+    /* Spacing System */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
 }
 
+/* ==========================================================================
+   GLOBAL STYLES
+   ========================================================================== */
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
     margin-bottom: 60px;
+    color: var(--color-text);
+    background-color: var(--color-background);
+    line-height: 1.6;
 }
 
-:root {
-    --primary-color: #007bff;
-    --primary-hover: #0056b3;
-    --secondary-color: #6c757d;
-    --success-color: #28a745;
-    --warning-color: #ffc107;
-    --danger-color: #dc3545;
-    --info-color: #17a2b8;
-    --light-color: #f8f9fa;
-    --dark-color: #343a40;
-    --border-color: #dee2e6;
-    --shadow: 0 2px 4px rgba(0,0,0,0.1);
-    --shadow-hover: 0 4px 8px rgba(0,0,0,0.15);
+/* Focus States - Clean and Accessible */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-gray-800);
+    outline: none;
 }
 
+/* ==========================================================================
+   CARD COMPONENTS
+   ========================================================================== */
 .summary-card {
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    background: white;
-    box-shadow: var(--shadow);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+    padding: var(--space-lg);
 }
 
     .summary-card:hover {
-        box-shadow: var(--shadow-hover);
-        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
+        border-color: var(--color-gray-300);
     }
 
 .summary-card-icon {
@@ -57,217 +118,376 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    color: white;
+    font-size: 20px;
+    color: var(--color-white);
+    flex-shrink: 0;
 }
 
+/* Icon Color System - Minimal */
 .icon-users {
-    background-color: var(--primary-color);
+    background-color: var(--color-gray-800);
 }
 
 .icon-books {
-    background-color: var(--success-color);
+    background-color: var(--color-success);
 }
 
 .icon-borrowed {
-    background-color: var(--warning-color);
+    background-color: var(--color-warning);
 }
 
 .icon-overdue {
-    background-color: var(--danger-color);
+    background-color: var(--color-danger);
 }
 
+.icon-journal {
+    background-color: var(--color-info);
+}
+
+/* Quick Action Cards */
 .quick-action-card {
-    transition: all 0.3s ease;
-    border: 1px solid var(--border-color) !important;
+    transition: all 0.2s ease;
+    border: var(--border-width) solid var(--color-border);
+    background: var(--color-white);
 }
 
     .quick-action-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-hover);
-        border-color: var(--light-color) !important;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--color-gray-300);
     }
 
         .quick-action-card:hover .quick-action-icon {
-            color: var(--dark-color) !important;
+            color: var(--color-gray-900);
         }
 
 .quick-action-icon {
-    transition: color 0.3s ease;
+    transition: color 0.2s ease;
+    color: var(--color-gray-600);
 }
 
-.btn-outline-secondary {
-    border-color: var(--border-color);
-    color: var(--secondary-color);
-    transition: all 0.3s ease;
-}
-
-    .btn-outline-secondary:hover {
-        background-color: var(--secondary-color);
-        border-color: var(--secondary-color);
-        color: white;
-    }
-
-.activity-item {
-    transition: background-color 0.3s ease;
-    padding: 8px;
-    border-radius: 6px;
-}
-
-    .activity-item:hover {
-        background-color: var(--light-color);
-    }
-
-.badge {
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.chart-container {
-    position: relative;
-    height: 300px;
-    padding: 15px;
-}
-
+/* ==========================================================================
+   TYPOGRAPHY & METRICS
+   ========================================================================== */
 .metric-value {
     font-size: 2rem;
     font-weight: 700;
-    color: var(--dark-color);
-    margin: 8px 0;
+    color: var(--color-text);
+    margin: var(--space-sm) 0;
+    line-height: 1.2;
 }
 
 .metric-label {
-    font-size: 1.1rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    color: var(--dark-color);
-    margin-bottom: 8px;
+    color: var(--color-text);
+    margin-bottom: var(--space-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .metric-description {
-    font-size: 0.9rem;
-    color: var(--secondary-color);
-}
-
-.disabled-card {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-    .disabled-card:hover {
-        transform: none;
-        box-shadow: var(--shadow);
-    }
-
-/* Additional styles for Books Management - Add to your existing CSS */
-
-/* Book Cards */
-.book-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-    .book-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-.book-cover-placeholder {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    font-size: 0.813rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    min-height: 1.2rem; /* Reserve space for consistent height */
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 8px;
 }
 
-/* Modal Enhancements */
-.modal-content {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+/* Status text styling for overdue messages */
+.metric-status {
+    font-size: 0.813rem;
+    font-weight: 600;
+    margin: 0;
+    min-height: 1.2rem;
+    display: flex;
+    align-items: center;
 }
 
-.modal-header {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-    border-radius: 12px 12px 0 0;
+/* ==========================================================================
+   BUTTONS - MINIMAL DESIGN
+   ========================================================================== */
+.btn-outline-secondary {
+    border-color: var(--color-border);
+    color: var(--color-black);
+    background: var(--color-white);
+    transition: all 0.2s ease;
+    border-width: var(--border-width);
 }
 
-.modal-footer {
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-    border-radius: 0 0 12px 12px;
-}
-
-/* Book Grid Layout */
-.books-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-}
-
-@media (max-width: 768px) {
-    .books-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 1rem;
+    .btn-outline-secondary:hover {
+        background-color: var(--color-gray-50);
+        border-color: var(--color-border);
+        color: var(--color-black);
     }
-}
 
-/* Search and Filter Section */
-.search-filter-card {
-    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-}
-
-/* Action Buttons */
 .btn-action {
     min-width: 80px;
     font-weight: 500;
     transition: all 0.2s ease;
+    border-radius: var(--border-radius-sm);
 }
 
     .btn-action:hover {
         transform: translateY(-1px);
     }
 
-/* Image Preview Styles */
-.image-preview-container {
-    border: 2px dashed #dee2e6;
-    border-radius: 8px;
-    padding: 1rem;
-    text-align: center;
-    transition: border-color 0.2s ease;
+/* ==========================================================================
+   NAVIGATION TABS - CLEAN DESIGN
+   ========================================================================== */
+.nav-tabs {
+    border-bottom: none !important;
+    margin-bottom: var(--space-lg);
 }
 
-    .image-preview-container:hover {
-        border-color: #adb5bd;
+.badge-tab {
+    background-color: var(--color-surface);
+    color: var(--color-text-muted);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-sm) var(--space-lg);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin-right: var(--space-sm);
+    margin-bottom: -1px;
+}
+
+    .badge-tab i {
+        font-size: 1rem;
+        color: inherit;
     }
 
-    .image-preview-container.has-image {
-        border: none;
-        padding: 0;
+    .badge-tab:hover,
+    .badge-tab:focus {
+        background-color: var(--color-gray-100);
+        color: var(--color-text);
+        border-color: var(--color-gray-300);
     }
 
-/* Loading States */
+.nav-tabs .nav-link.badge-tab.active {
+    background-color: var(--color-white);
+    color: var(--color-text);
+    border-color: var(--color-border) var(--color-border) var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
+   TABLES - CLEAN STYLING
+   ========================================================================== */
+.table {
+    background: var(--color-white);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.table-light {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--color-gray-50);
+}
+
+/* ==========================================================================
+   BADGES & STATUS INDICATORS
+   ========================================================================== */
+.badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--border-radius-sm);
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--border-radius-lg);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Status Colors - Minimal Approach */
+.status-available,
+.bg-success {
+    background-color: var(--color-success);
+    color: var(--color-white);
+}
+
+.status-borrowed,
+.bg-warning {
+    background-color: var(--color-warning);
+    color: var(--color-white);
+}
+
+.status-limited,
+.bg-info {
+    background-color: var(--color-info);
+    color: var(--color-white);
+}
+
+.bg-danger {
+    background-color: var(--color-danger);
+    color: var(--color-white);
+}
+
+/* ==========================================================================
+   BOOK MANAGEMENT STYLES
+   ========================================================================== */
+.book-card {
+    transition: all 0.2s ease;
+    border: var(--border-width) solid var(--color-border);
+    background: var(--color-white);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+    .book-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--color-gray-300);
+    }
+
+.book-cover-placeholder {
+    background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-sm);
+    color: var(--color-text-light);
+}
+
+.book-cover {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border-radius: var(--border-radius-sm);
+}
+
+    .book-cover:hover {
+        transform: scale(1.02);
+        box-shadow: var(--shadow-md);
+    }
+
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+    .books-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: var(--space-md);
+    }
+}
+
+/* ==========================================================================
+   MODALS - CLEAN DESIGN
+   ========================================================================== */
+.modal-content {
+    border: none;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    background: var(--color-white);
+}
+
+.modal-header {
+    border-bottom: var(--border-width) solid var(--color-border);
+    background: var(--color-white);
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    padding: var(--space-lg);
+}
+
+.modal-footer {
+    border-top: var(--border-width) solid var(--color-border);
+    background: var(--color-surface);
+    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+    padding: var(--space-lg);
+}
+
+/* ==========================================================================
+   FORM ELEMENTS
+   ========================================================================== */
+.search-filter-card {
+    background: var(--color-white);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-lg);
+}
+
+.form-control:focus {
+    border-color: var(--color-gray-400);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.is-invalid {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 2px rgba(255, 59, 48, 0.15);
+}
+
+/* ==========================================================================
+   FILE UPLOAD
+   ========================================================================== */
+.file-upload-wrapper {
+    position: relative;
+    overflow: hidden;
+    border: 2px dashed var(--color-border);
+    border-radius: var(--border-radius-md);
+    padding: var(--space-xl) var(--space-md);
+    text-align: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background: var(--color-white);
+}
+
+    .file-upload-wrapper:hover {
+        border-color: var(--color-gray-400);
+        background-color: var(--color-surface);
+    }
+
+    .file-upload-wrapper input[type="file"] {
+        position: absolute;
+        left: -9999px;
+    }
+
+.file-upload-text {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+.file-upload-icon {
+    font-size: 2rem;
+    color: var(--color-text-light);
+    margin-bottom: var(--space-sm);
+}
+
+/* ==========================================================================
+   LOADING & EMPTY STATES
+   ========================================================================== */
 .loading-overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    border-radius: 12px;
+    border-radius: var(--border-radius-lg);
 }
 
 .loading-spinner {
     width: 2rem;
     height: 2rem;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #007bff;
+    border: 3px solid var(--color-gray-200);
+    border-top: 3px solid var(--color-gray-800);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -282,54 +502,75 @@ body {
     }
 }
 
-/* Empty State */
 .empty-state {
-    padding: 3rem 2rem;
+    padding: var(--space-2xl) var(--space-xl);
     text-align: center;
-    color: #6c757d;
+    color: var(--color-text-muted);
 }
 
     .empty-state .empty-icon {
-        font-size: 4rem;
-        color: #dee2e6;
-        margin-bottom: 1rem;
+        font-size: 3rem;
+        color: var(--color-text-light);
+        margin-bottom: var(--space-md);
     }
 
     .empty-state h4 {
-        color: #495057;
-        margin-bottom: 0.5rem;
+        color: var(--color-text);
+        margin-bottom: var(--space-sm);
+        font-weight: 600;
     }
 
-/* Form Validation */
-.is-invalid {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+/* ==========================================================================
+   ACTIVITY FEED
+   ========================================================================== */
+.activity-item {
+    transition: background-color 0.2s ease;
+    padding: var(--space-sm);
+    border-radius: var(--border-radius-sm);
+    border-left: 3px solid transparent;
 }
+
+    .activity-item:hover {
+        background-color: var(--color-surface);
+        border-left-color: var(--color-gray-300);
+    }
+
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
+.disabled-card {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+    .disabled-card:hover {
+        transform: none;
+        box-shadow: var(--shadow-sm);
+    }
 
 .text-danger {
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
+    color: var(--color-danger) !important;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 576px) {
-    .modal-dialog {
-        margin: 1rem 0.5rem;
-        max-width: none;
-        width: auto;
-    }
-
-    .book-card .card-body {
-        padding: 1rem;
-    }
-
-    .btn-action {
-        min-width: 70px;
-        font-size: 0.875rem;
-    }
+.text-warning {
+    color: var(--color-warning) !important;
 }
 
-/* Animation Classes */
+.text-success {
+    color: var(--color-success) !important;
+}
+
+.text-info {
+    color: var(--color-info) !important;
+}
+
+.text-muted {
+    color: var(--color-text-muted) !important;
+}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
 .fade-in {
     opacity: 0;
     animation: fadeIn 0.3s ease forwards;
@@ -342,7 +583,7 @@ body {
 }
 
 .slide-up {
-    transform: translateY(20px);
+    transform: translateY(10px);
     opacity: 0;
     animation: slideUp 0.3s ease forwards;
 }
@@ -354,74 +595,30 @@ body {
     }
 }
 
-/* File Upload Styling */
-.file-upload-wrapper {
-    position: relative;
-    overflow: hidden;
-    border: 2px dashed #dee2e6;
-    border-radius: 8px;
-    padding: 2rem 1rem;
-    text-align: center;
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-    .file-upload-wrapper:hover {
-        border-color: #007bff;
-        background-color: #f8f9ff;
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: var(--space-md) var(--space-sm);
+        max-width: none;
+        width: auto;
     }
 
-    .file-upload-wrapper input[type="file"] {
-        position: absolute;
-        left: -9999px;
+    .book-card .card-body {
+        padding: var(--space-md);
     }
 
-.file-upload-text {
-    color: #6c757d;
-    font-size: 0.875rem;
-}
-
-.file-upload-icon {
-    font-size: 2rem;
-    color: #dee2e6;
-    margin-bottom: 0.5rem;
-}
-
-/* Book Cover Hover Effects */
-.book-cover {
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-    .book-cover:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    .btn-action {
+        min-width: 70px;
+        font-size: 0.875rem;
     }
 
-/* Status Badges */
-.status-badge {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.375rem 0.75rem;
-    border-radius: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+    .metric-value {
+        font-size: 1.5rem;
+    }
 
-.status-available {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.status-borrowed {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.status-limited {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeaa7;
+    .summary-card {
+        padding: var(--space-md);
+    }
 }

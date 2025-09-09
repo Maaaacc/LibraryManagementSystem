@@ -17,23 +17,24 @@ namespace LibraryManagementSystem.Areas.Admin.Controllers
             _userManager = userManager;
         }
 
-        // Centralized allowed transitions
-        private static readonly Dictionary<string, string[]> StatusTransitions = new()
+        public static readonly Dictionary<string, string[]> Transitions = new()
         {
             ["PendingVerification"] = new[] { "Active", "Rejected", "Banned" },
             ["Active"] = new[] { "Suspended", "Banned", "Inactive", "PendingVerification" },
             ["Suspended"] = new[] { "Active", "Inactive", "Banned" },
             ["Banned"] = Array.Empty<string>(),
-            ["Rejected"] = new[] { "PendingVerification", "Banned" },
-            ["Inactive"] = new[] { "Active", "PendingVerification" }
+            ["Rejected"] = new[] {"PendingVerification", "Banned"},
+            ["Inactive"] = new[] {"Active", "PendingVerification"} 
+
         };
 
-        private string[] GetAllowedTransitions(string currentStatus)
+        public static string[] GetAllowedTransitions(string currentStatus)
         {
-            return StatusTransitions.ContainsKey(currentStatus)
-                ? StatusTransitions[currentStatus]
+            return Transitions.ContainsKey(currentStatus)
+                ? Transitions[currentStatus]
                 : Array.Empty<string>();
         }
+
 
         // GET: Admin/Users
         public async Task<IActionResult> Index(UserSearchViewModel model)
@@ -102,6 +103,7 @@ namespace LibraryManagementSystem.Areas.Admin.Controllers
             }
 
             var allowedStatuses = GetAllowedTransitions(user.Status);
+
             if (!allowedStatuses.Contains(newStatus))
             {
                 TempData["Error"] = $"Invalid status change from {user.Status} to {newStatus}.";

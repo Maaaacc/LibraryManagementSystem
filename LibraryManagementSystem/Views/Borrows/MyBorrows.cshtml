@@ -1,7 +1,6 @@
 ﻿@model IEnumerable<Borrow>
 
 <h2>My Borrowed Books</h2>
-
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success">@TempData["Success"]</div>
@@ -10,57 +9,83 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
-
 @{
-    // Compute stats from Model dynamically (or pass via ViewData/ViewModel)
     var activeBorrows = Model.Where(b => b.ReturnedAt == null).ToList();
     var borrowHistory = Model.Where(b => b.ReturnedAt != null).ToList();
-
     var activeCount = activeBorrows.Count;
-    var maxBorrows = (int)ViewData["MaxActiveBorrows"]; // Make sure set in controller
+    var maxBorrows = (int)ViewData["MaxActiveBorrows"];
     var overdueCount = activeBorrows.Count(b => b.DueAt < DateTime.Now);
     var totalCount = Model.Count();
 }
-
-<div class="mb-4">
-    <div class="d-flex flex-wrap gap-3">
-
-        <div class="p-3 bg-light border rounded text-center" style="min-width: 150px;">
-            <h5>Active Borrowing</h5>
-            <p class="fs-4 mb-1">@activeCount / @maxBorrows</p>
-            <small class="text-muted">Maximum allowed: @maxBorrows books</small>
+<div class="row mb-4 py-5" style="background-color: var(--color-surface);">
+    <div class="col-md-4">
+        <div class="card p-3 summary-card h-100">
+            <div class="d-flex justify-content-between align-items-center h-100">
+                <div class="flex-grow-1">
+                    <h5 class="metric-label">Active Borrowing</h5>
+                    <h2 class="metric-value">@activeCount / @maxBorrows</h2>
+                    <p class="metric-description">Maximum allowed books</p>
+                </div>
+                <div class="summary-card-icon icon-books">
+                    <i class="bi bi-book"></i>
+                </div>
+            </div>
         </div>
-
-        <div class="p-3 bg-light border rounded text-center" style="min-width: 150px;">
-            <h5>Overdue Books</h5>
-            <p class="fs-4 mb-1">@overdueCount</p>
-            @if (overdueCount > 0)
-            {
-                <small class="text-danger">Please return ASAP</small>
-            }
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 summary-card h-100">
+            <div class="d-flex justify-content-between align-items-center h-100">
+                <div class="flex-grow-1">
+                    <h5 class="metric-label">Overdue Books</h5>
+                    <h2 class="metric-value">@overdueCount</h2>
+                    @if (overdueCount > 0)
+                    {
+                        <p class="metric-status text-danger">Please return ASAP</p>
+                    }
+                    else
+                    {
+                        <p class="metric-description">No overdue books</p>
+                    }
+                </div>
+                <div class="summary-card-icon icon-overdue">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+            </div>
         </div>
-
-        <div class="p-3 bg-light border rounded text-center" style="min-width: 150px;">
-            <h5>Total Borrowed</h5>
-            <p class="fs-4 mb-1">@totalCount</p>
-            <small class="text-muted">All time</small>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 summary-card h-100">
+            <div class="d-flex justify-content-between align-items-center h-100">
+                <div class="flex-grow-1">
+                    <h5 class="metric-label">Total Borrowed</h5>
+                    <h2 class="metric-value">@totalCount</h2>
+                    <p class="metric-description">All time</p>
+                </div>
+                <div class="summary-card-icon icon-journal">
+                    <i class="bi bi-journal-bookmark"></i>
+                </div>
+            </div>
         </div>
-
     </div>
 </div>
 
-<ul class="nav nav-tabs" id="borrowTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="current-tab" data-bs-toggle="tab" data-bs-target="#current" type="button" role="tab" aria-controls="current" aria-selected="true">
-            Current Borrowings (@activeCount)
+<ul class="nav nav-tabs mb-5 px-0" id="borrowTabs" role="tablist">
+    <li class="nav-item me-2" role="presentation">
+        <button class="nav-link badge-tab active d-flex align-items-center gap-2"
+                id="current-tab" data-bs-toggle="tab" data-bs-target="#current"
+                type="button" role="tab" aria-controls="current" aria-selected="true">
+            <i class="bi bi-bookmark-check"></i> Current Borrowings (@activeCount)
         </button>
     </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">
-            Borrowing History (@borrowHistory.Count)
+    <li class="nav-item me-5" role="presentation">
+        <button class="nav-link badge-tab d-flex align-items-center gap-2"
+                id="history-tab" data-bs-toggle="tab" data-bs-target="#history"
+                type="button" role="tab" aria-controls="history" aria-selected="false">
+            <i class="bi bi-clock-history"></i> Borrowing History (@borrowHistory.Count)
         </button>
     </li>
 </ul>
+
 
 <div class="tab-content mt-3" id="borrowTabsContent">
     <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
@@ -72,8 +97,8 @@
         }
         else
         {
-            <table class="table">
-                <thead>
+            <table class="table table-hover ">
+                <thead class="table-light">
                     <tr>
                         <th>Title</th>
                         <th>Borrowed Date</th>
@@ -122,7 +147,6 @@
             </table>
         }
     </div>
-
     <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
         <h5>Borrowing History</h5>
         <p>Books you have previously borrowed and returned.</p>
@@ -132,8 +156,8 @@
         }
         else
         {
-            <table class="table">
-                <thead>
+            <table class="table table-hover">
+                <thead class="table-light">
                     <tr>
                         <th>Title</th>
                         <th>Borrowed Date</th>
@@ -154,7 +178,3 @@
         }
     </div>
 </div>
-
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-}
