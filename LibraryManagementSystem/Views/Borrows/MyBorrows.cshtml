@@ -1,15 +1,6 @@
 ﻿@model IEnumerable<Borrow>
-
-<h2>My Borrowed Books</h2>
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
 @{
+    ViewData["Title"] = "My Borrowed Books";
     var activeBorrows = Model.Where(b => b.ReturnedAt == null).ToList();
     var borrowHistory = Model.Where(b => b.ReturnedAt != null).ToList();
     var activeCount = activeBorrows.Count;
@@ -17,164 +8,308 @@
     var overdueCount = activeBorrows.Count(b => b.DueAt < DateTime.Now);
     var totalCount = Model.Count();
 }
-<div class="row mb-4 py-5" style="background-color: var(--color-surface);">
-    <div class="col-md-4">
-        <div class="card p-3 summary-card h-100">
-            <div class="d-flex justify-content-between align-items-center h-100">
-                <div class="flex-grow-1">
-                    <h5 class="metric-label">Active Borrowing</h5>
-                    <h2 class="metric-value">@activeCount / @maxBorrows</h2>
-                    <p class="metric-description">Maximum allowed books</p>
+
+<!-- Page Header Section -->
+<section class="py-4 bg-white">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-6 fw-bold mb-2 text-dark">My Borrowed Books</h1>
+                <p class="text-muted mb-0">Manage your current borrowings and view your history</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Alert Messages -->
+@if (TempData["Success"] != null)
+{
+    <section class="py-2">
+        <div class="container">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </section>
+}
+@if (TempData["Error"] != null)
+{
+    <section class="py-2">
+        <div class="container">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Stats Section -->
+<section class="py-5" style="background-color: var(--color-surface);">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="metric-label mb-2" style="font-size: 1.25rem; text-transform: none;">Your Borrowing Overview</h2>
+                <p class="text-muted">Current status and activity summary</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="summary-card h-100">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="metric-label">Active Borrowing</h6>
+                            <div class="metric-value">@activeCount<span class="text-muted" style="font-size: 1.2rem;">/@maxBorrows</span></div>
+                            <p class="metric-description">Current borrowed books</p>
+                        </div>
+                        <div class="summary-card-icon icon-books">
+                            <i class="bi bi-book"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="summary-card-icon icon-books">
-                    <i class="bi bi-book"></i>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="summary-card h-100">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="metric-label">Overdue Books</h6>
+                            <div class="metric-value">@overdueCount</div>
+                            @if (overdueCount > 0)
+                            {
+                                <p class="metric-status text-danger">Return immediately</p>
+                            }
+                            else
+                            {
+                                <p class="metric-description">All books on time</p>
+                            }
+                        </div>
+                        <div class="summary-card-icon icon-overdue">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="summary-card h-100">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="metric-label">Total Borrowed</h6>
+                            <div class="metric-value">@totalCount</div>
+                            <p class="metric-description">All time history</p>
+                        </div>
+                        <div class="summary-card-icon icon-journal">
+                            <i class="bi bi-journal-bookmark"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card p-3 summary-card h-100">
-            <div class="d-flex justify-content-between align-items-center h-100">
-                <div class="flex-grow-1">
-                    <h5 class="metric-label">Overdue Books</h5>
-                    <h2 class="metric-value">@overdueCount</h2>
-                    @if (overdueCount > 0)
-                    {
-                        <p class="metric-status text-danger">Please return ASAP</p>
-                    }
-                    else
-                    {
-                        <p class="metric-description">No overdue books</p>
-                    }
+</section>
+
+<!-- Tabs Navigation -->
+<section class="py-4 bg-white">
+    <div class="container">
+        <ul class="nav nav-tabs mb-4" id="borrowTabs" role="tablist">
+            <li class="nav-item me-2" role="presentation">
+                <button class="nav-link badge-tab active d-flex align-items-center gap-2"
+                        id="current-tab" data-bs-toggle="tab" data-bs-target="#current"
+                        type="button" role="tab" aria-controls="current" aria-selected="true">
+                    <i class="bi bi-bookmark-check"></i> Current Borrowings (@activeCount)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link badge-tab d-flex align-items-center gap-2"
+                        id="history-tab" data-bs-toggle="tab" data-bs-target="#history"
+                        type="button" role="tab" aria-controls="history" aria-selected="false">
+                    <i class="bi bi-clock-history"></i> Borrowing History (@borrowHistory.Count)
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="borrowTabsContent">
+            <!-- Current Borrowings Tab -->
+            <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
+                <div class="mb-4">
+                    <h3 class="metric-label mb-2" style="font-size: 1.1rem; text-transform: none;">Current Borrowed Books</h3>
+                    <p class="text-muted">Books you currently have borrowed. Remember to return them by the due date.</p>
                 </div>
-                <div class="summary-card-icon icon-overdue">
-                    <i class="bi bi-exclamation-triangle"></i>
+
+                @if (!activeBorrows.Any())
+                {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="bi bi-bookmark"></i>
+                        </div>
+                        <h4>No Current Borrowings</h4>
+                        <p class="text-muted">You don't have any books borrowed at the moment.</p>
+                        <a href="/books" class="btn btn-dark">
+                            <i class="bi bi-book me-2"></i>Browse Books
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="fw-semibold">Book Title</th>
+                                    <th class="fw-semibold">Author</th>
+                                    <th class="fw-semibold">Borrowed Date</th>
+                                    <th class="fw-semibold">Due Date</th>
+                                    <th class="fw-semibold">Status</th>
+                                    <th class="fw-semibold">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var borrow in activeBorrows)
+                                {
+                                    bool isOverdue = borrow.DueAt < DateTime.Now;
+                                    <tr class="@(isOverdue ? "table-danger" : "")">
+                                        <td>
+                                            <div class="fw-semibold">@borrow.Book.Title</div>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">by @borrow.Book.Author</small>
+
+                                        </td>
+                                        <td class="text-muted">@borrow.BorrowedAt.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            @if (isOverdue)
+                                            {
+                                                <span class="text-danger fw-semibold">
+                                                    @borrow.DueAt.ToString("MMM dd, yyyy")
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-dark">@borrow.DueAt.ToString("MMM dd, yyyy")</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (isOverdue)
+                                            {
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>Overdue
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge status-borrowed">
+                                                    <i class="bi bi-bookmark-check me-1"></i>Active
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <form asp-action="Return" method="post" style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@borrow.Id" />
+                                                <button type="submit" class="btn btn-outline-secondary btn-sm btn-action">
+                                                    <i class="bi bi-arrow-return-left me-1"></i>Return
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            <!-- Borrowing History Tab -->
+            <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                <div class="mb-4">
+                    <h3 class="metric-label mb-2" style="font-size: 1.1rem; text-transform: none;">Borrowing History</h3>
+                    <p class="text-muted">Complete record of books you have previously borrowed and returned.</p>
                 </div>
+
+                @if (!borrowHistory.Any())
+                {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <h4>No Borrowing History</h4>
+                        <p class="text-muted">You haven't borrowed any books yet.</p>
+                        <a href="/books" class="btn btn-dark">
+                            <i class="bi bi-book me-2"></i>Start Browsing
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="fw-semibold">Book Title</th>
+                                    <th class="fw-semibold">Borrowed Date</th>
+                                    <th class="fw-semibold">Returned Date</th>
+                                    <th class="fw-semibold">Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var borrow in borrowHistory)
+                                {
+                                    TimeSpan durationSpan = borrow.ReturnedAt.HasValue
+                                    ? (borrow.ReturnedAt.Value - borrow.BorrowedAt)
+                                    : TimeSpan.Zero;
+
+                                    string durationText;
+                                    if (durationSpan.TotalSeconds < 60) // less than 1 min
+                                    {
+                                        int seconds = (int)durationSpan.TotalSeconds;
+                                        durationText = $"{seconds} sec{(seconds != 1 ? "s" : "")}";
+                                    }
+                                    else if (durationSpan.TotalMinutes < 60) // less than 1 hr
+                                    {
+                                        int minutes = (int)durationSpan.TotalMinutes;
+                                        durationText = $"{minutes} min{(minutes != 1 ? "s" : "")}";
+                                    }
+                                    else if (durationSpan.TotalHours < 24) // less than 1 day
+                                    {
+                                        int hours = (int)durationSpan.TotalHours;
+                                        int minutes = durationSpan.Minutes;
+                                        durationText = $"{hours} hr{(hours != 1 ? "s" : "")}";
+                                        if (minutes > 0)
+                                        {
+                                            durationText += $" {minutes} min{(minutes != 1 ? "s" : "")}";
+                                        }
+                                    }
+                                    else // 1 day or more
+                                    {
+                                        int days = durationSpan.Days;
+                                        int hours = durationSpan.Hours;
+                                        durationText = $"{days} day{(days != 1 ? "s" : "")}";
+                                        if (hours > 0)
+                                        {
+                                            durationText += $" {hours} hr{(hours != 1 ? "s" : "")}";
+                                        }
+                                    }
+
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">@borrow.Book.Title</div>
+                                            <small class="text-muted">by @borrow.Book.Author</small>
+                                        </td>
+                                        <td class="text-muted">@borrow.BorrowedAt.ToString("MMM dd, yyyy")</td>
+                                        <td class="text-muted">@borrow.ReturnedAt?.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">
+                                                @durationText
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card p-3 summary-card h-100">
-            <div class="d-flex justify-content-between align-items-center h-100">
-                <div class="flex-grow-1">
-                    <h5 class="metric-label">Total Borrowed</h5>
-                    <h2 class="metric-value">@totalCount</h2>
-                    <p class="metric-description">All time</p>
-                </div>
-                <div class="summary-card-icon icon-journal">
-                    <i class="bi bi-journal-bookmark"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<ul class="nav nav-tabs mb-5 px-0" id="borrowTabs" role="tablist">
-    <li class="nav-item me-2" role="presentation">
-        <button class="nav-link badge-tab active d-flex align-items-center gap-2"
-                id="current-tab" data-bs-toggle="tab" data-bs-target="#current"
-                type="button" role="tab" aria-controls="current" aria-selected="true">
-            <i class="bi bi-bookmark-check"></i> Current Borrowings (@activeCount)
-        </button>
-    </li>
-    <li class="nav-item me-5" role="presentation">
-        <button class="nav-link badge-tab d-flex align-items-center gap-2"
-                id="history-tab" data-bs-toggle="tab" data-bs-target="#history"
-                type="button" role="tab" aria-controls="history" aria-selected="false">
-            <i class="bi bi-clock-history"></i> Borrowing History (@borrowHistory.Count)
-        </button>
-    </li>
-</ul>
-
-
-<div class="tab-content mt-3" id="borrowTabsContent">
-    <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
-        <h5>Current Borrowed Books</h5>
-        <p>Books you currently have borrowed. Remember to return them by the due date.</p>
-        @if (!activeBorrows.Any())
-        {
-            <p>You have no current borrowed books.</p>
-        }
-        else
-        {
-            <table class="table table-hover ">
-                <thead class="table-light">
-                    <tr>
-                        <th>Title</th>
-                        <th>Borrowed Date</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var borrow in activeBorrows)
-                    {
-                        bool isOverdue = borrow.DueAt < DateTime.Now;
-                        <tr>
-                            <td>@borrow.Book.Title</td>
-                            <td>@borrow.BorrowedAt.ToShortDateString()</td>
-                            <td>
-                                @if (isOverdue)
-                                {
-                                    <span class="text-danger">@borrow.DueAt.ToShortDateString() (Overdue)</span>
-                                }
-                                else
-                                {
-                                    @borrow.DueAt.ToShortDateString()
-                                }
-                            </td>
-                            <td>
-                                @if (isOverdue)
-                                {
-                                    <span class="badge bg-danger">Overdue</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning text-dark">Borrowed</span>
-                                }
-                            </td>
-                            <td>
-                                <form asp-action="Return" method="post" style="display:inline;">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@borrow.Id" />
-                                    <button type="submit" class="btn btn-warning btn-sm">Return</button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-    </div>
-    <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-        <h5>Borrowing History</h5>
-        <p>Books you have previously borrowed and returned.</p>
-        @if (!borrowHistory.Any())
-        {
-            <p>No borrow history found.</p>
-        }
-        else
-        {
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Title</th>
-                        <th>Borrowed Date</th>
-                        <th>Returned Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var borrow in borrowHistory)
-                    {
-                        <tr>
-                            <td>@borrow.Book.Title</td>
-                            <td>@borrow.BorrowedAt.ToShortDateString()</td>
-                            <td>@borrow.ReturnedAt?.ToShortDateString()</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-    </div>
-</div>
+</section>

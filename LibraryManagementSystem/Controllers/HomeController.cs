@@ -1,4 +1,4 @@
-using LibraryManagementSystem.Data;
+﻿using LibraryManagementSystem.Data;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,20 +21,15 @@ namespace LibraryManagementSystem.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            // Get total books count
             var totalBooks = await _context.Books.CountAsync();
-
-            // Get active members count
             var activeMembers = await _context.Users.CountAsync();
-
-            // Get books borrowed this month
             var today = DateTime.Today;
             var startOfMonth = new DateTime(today.Year, today.Month, 1);
+
             var booksBorrowedThisMonth = await _context.Borrows
                 .Where(b => b.BorrowedAt >= startOfMonth && b.BorrowedAt < startOfMonth.AddMonths(1))
                 .CountAsync();
 
-            // Calculate satisfaction rating (simplified)
             var totalBorrows = await _context.Borrows.CountAsync();
             var overdueBorrows = await _context.Borrows
                 .Where(b => b.ReturnedAt == null && b.DueAt < DateTime.Today)
@@ -47,21 +42,34 @@ namespace LibraryManagementSystem.Controllers
                 satisfactionRating = Math.Max(5.0 - (overdueRate * 2.0), 1.0);
             }
 
-            // Get featured books (most popular available books)
             var featuredBooks = await _context.Books
                 .Where(b => b.AvailableCopies > 0)
                 .OrderByDescending(b => b.TotalCopies - b.AvailableCopies)
-                .Take(3)
+                .Take(4)
                 .ToListAsync();
 
-            // Pass data to view
+            // 🔹 Count how many books the current user has borrowed and not yet returned
+            int activeBorrowCount = 0;
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null)
+                {
+                    activeBorrowCount = await _context.Borrows
+                        .Where(b => b.UserId == user.Id && b.ReturnedAt == null)
+                        .CountAsync();
+                }
+            }
+
             ViewData["TotalBooks"] = totalBooks;
             ViewData["ActiveMembers"] = activeMembers;
             ViewData["BooksBorrowedThisMonth"] = booksBorrowedThisMonth;
             ViewData["SatisfactionRating"] = satisfactionRating.ToString("F1");
             ViewData["FeaturedBooks"] = featuredBooks;
+            ViewData["ActiveBorrowCount"] = activeBorrowCount; // 🔹 pass to view
 
             return View();
         }
+
     }
 }

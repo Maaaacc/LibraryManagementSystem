@@ -1,9 +1,9 @@
 ﻿@using LibraryManagementSystem.Models
 @model UserSearchViewModel
-
 @{
     ViewData["Title"] = "Manage Users";
     var currentStatus = Model.Status ?? "All";
+    var totalUsers = Model.Users?.Count() ?? 0;
 
     // Allowed transitions (must match controller)
     var transitions = new Dictionary<string, string[]>
@@ -16,170 +16,336 @@
                 ["Inactive"] = new[] { "Active", "PendingVerification" }
             };
 
-    // Status counts for display
+    // FIX: Use ViewBag.AllUsers for accurate counts instead of filtered Model.Users
+    var allUsers = ViewBag.AllUsers as List<ApplicationUser> ?? new List<ApplicationUser>();
+
+    // Status counts for display - now using all users for accurate counts
     var statusCounts = new Dictionary<string, int>
             {
-                ["PendingVerification"] = Model.Users.Count(u => u.Status == "PendingVerification"),
-                ["Active"] = Model.Users.Count(u => u.Status == "Active"),
-                ["Suspended"] = Model.Users.Count(u => u.Status == "Suspended"),
-                ["Banned"] = Model.Users.Count(u => u.Status == "Banned"),
-                ["Rejected"] = Model.Users.Count(u => u.Status == "Rejected"),
-                ["Inactive"] = Model.Users.Count(u => u.Status == "Inactive")
+                ["PendingVerification"] = allUsers.Count(u => u.Status == "PendingVerification"),
+                ["Active"] = allUsers.Count(u => u.Status == "Active"),
+                ["Suspended"] = allUsers.Count(u => u.Status == "Suspended"),
+                ["Banned"] = allUsers.Count(u => u.Status == "Banned"),
+                ["Rejected"] = allUsers.Count(u => u.Status == "Rejected"),
+                ["Inactive"] = allUsers.Count(u => u.Status == "Inactive")
             };
 }
 
-<h2>Manage Users</h2>
+<!-- Breadcrumb Section -->
+<section class="py-3" style="background-color: var(--color-surface);">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-muted">
+                        <i class="bi bi-speedometer2 me-1"></i>Admin Dashboard
+                    </a>
+                </li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">
+                    <i class="bi bi-people me-1"></i>User Management
+                </li>
+            </ol>
+        </nav>
+    </div>
+</section>
 
+<!-- Header Section -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="display-6 fw-bold mb-2" style="color: var(--color-text);">User Management</h1>
+        <p class="text-muted mb-0">Monitor and manage @allUsers.Count user accounts across the system</p>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <div class="summary-card-icon icon-users">
+            <i class="bi bi-people"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Messages -->
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="alert alert-success d-flex align-items-center mb-4 fade-in" style="border: var(--border-width) solid var(--color-success); border-radius: var(--border-radius-md); background-color: rgba(0, 179, 105, 0.1);">
+        <i class="bi bi-check-circle-fill me-2" style="color: var(--color-success);"></i>
+        <span>@TempData["Success"]</span>
+    </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">@TempData["Error"]</div>
+    <div class="alert alert-danger d-flex align-items-center mb-4 fade-in" style="border: var(--border-width) solid var(--color-danger); border-radius: var(--border-radius-md); background-color: rgba(255, 59, 48, 0.1);">
+        <i class="bi bi-exclamation-triangle-fill me-2" style="color: var(--color-danger);"></i>
+        <span>@TempData["Error"]</span>
+    </div>
 }
 
-<!-- Status Tabs - Matching Borrowed Books Style -->
-<ul class="nav nav-tabs mb-3 px-0" role="tablist">
+<!-- Status Overview Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card h-100 @(currentStatus == "PendingVerification" ? "border-warning" : "")" style="@(currentStatus == "PendingVerification" ? "border-color: var(--color-warning) !important;" : "")">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="metric-label">Pending</h6>
+                    <div class="metric-value" style="font-size: 1.5rem;">@statusCounts["PendingVerification"]</div>
+                </div>
+                <div class="summary-card-icon" style="background-color: var(--color-warning);">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card h-100 @(currentStatus == "Active" ? "border-success" : "")" style="@(currentStatus == "Active" ? "border-color: var(--color-success) !important;" : "")">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="metric-label">Active</h6>
+                    <div class="metric-value" style="font-size: 1.5rem;">@statusCounts["Active"]</div>
+                </div>
+                <div class="summary-card-icon icon-books">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card h-100 @(currentStatus == "Suspended" ? "border-info" : "")" style="@(currentStatus == "Suspended" ? "border-color: var(--color-info) !important;" : "")">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="metric-label">Suspended</h6>
+                    <div class="metric-value" style="font-size: 1.5rem;">@statusCounts["Suspended"]</div>
+                </div>
+                <div class="summary-card-icon" style="background-color: var(--color-info);">
+                    <i class="bi bi-pause-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card h-100 @(currentStatus == "Banned" ? "border-danger" : "")" style="@(currentStatus == "Banned" ? "border-color: var(--color-danger) !important;" : "")">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="metric-label">Banned</h6>
+                    <div class="metric-value" style="font-size: 1.5rem;">@statusCounts["Banned"]</div>
+                </div>
+                <div class="summary-card-icon icon-overdue">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card h-100 @(currentStatus == "Rejected" ? "border-danger" : "")" style="@(currentStatus == "Rejected" ? "border-color: var(--color-danger) !important;" : "")">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="metric-label">Rejected</h6>
+                    <div class="metric-value" style="font-size: 1.5rem;">@statusCounts["Rejected"]</div>
+                </div>
+                <div class="summary-card-icon" style="background-color: var(--color-danger);">
+                    <i class="bi bi-slash-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="summary-card h-100 @(currentStatus == "Inactive" ? "border-secondary" : "")" style="@(currentStatus == "Inactive" ? "border-color: var(--color-gray-400) !important;" : "")">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="metric-label">Inactive</h6>
+                    <div class="metric-value" style="font-size: 1.5rem;">@statusCounts["Inactive"]</div>
+                </div>
+                <div class="summary-card-icon" style="background-color: var(--color-gray-600);">
+                    <i class="bi bi-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Tabs -->
+<ul class="nav nav-tabs mb-4">
     <li class="nav-item me-2" role="presentation">
-        <a class="nav-link @(currentStatus == "PendingVerification" ? "active" : "")"
+        <a class="nav-link badge-tab @(currentStatus == "PendingVerification" ? "active" : "")"
            asp-action="Index" asp-route-Status="PendingVerification">
-            <i class="bi bi-clock-history"></i> Pending Verification (@statusCounts["PendingVerification"])
+            <i class="bi bi-clock-history me-1"></i>
+            Pending Verification
         </a>
     </li>
     <li class="nav-item me-2" role="presentation">
-        <a class="nav-link @(currentStatus == "Active" ? "active" : "")"
+        <a class="nav-link badge-tab @(currentStatus == "Active" ? "active" : "")"
            asp-action="Index" asp-route-Status="Active">
-            <i class="bi bi-check-circle"></i> Active Users (@statusCounts["Active"])
+            <i class="bi bi-check-circle me-1"></i>
+            Active Users
         </a>
     </li>
     <li class="nav-item me-2" role="presentation">
-        <a class="nav-link @(currentStatus == "Suspended" ? "active" : "")"
+        <a class="nav-link badge-tab @(currentStatus == "Suspended" ? "active" : "")"
            asp-action="Index" asp-route-Status="Suspended">
-            <i class="bi bi-pause-circle"></i> Suspended (@statusCounts["Suspended"])
+            <i class="bi bi-pause-circle me-1"></i>
+            Suspended
         </a>
     </li>
     <li class="nav-item me-2" role="presentation">
-        <a class="nav-link @(currentStatus == "Banned" ? "active" : "")"
+        <a class="nav-link badge-tab @(currentStatus == "Banned" ? "active" : "")"
            asp-action="Index" asp-route-Status="Banned">
-            <i class="bi bi-x-circle"></i> Banned (@statusCounts["Banned"])
+            <i class="bi bi-x-circle me-1"></i>
+            Banned
         </a>
     </li>
     <li class="nav-item me-2" role="presentation">
-        <a class="nav-link @(currentStatus == "Rejected" ? "active" : "")"
+        <a class="nav-link badge-tab @(currentStatus == "Rejected" ? "active" : "")"
            asp-action="Index" asp-route-Status="Rejected">
-            <i class="bi bi-slash-circle"></i> Rejected (@statusCounts["Rejected"])
+            <i class="bi bi-slash-circle me-1"></i>
+            Rejected
         </a>
     </li>
     <li class="nav-item me-2" role="presentation">
-        <a class="nav-link @(currentStatus == "Inactive" ? "active" : "")"
+        <a class="nav-link badge-tab @(currentStatus == "Inactive" ? "active" : "")"
            asp-action="Index" asp-route-Status="Inactive">
-            <i class="bi bi-circle"></i> Inactive (@statusCounts["Inactive"])
+            <i class="bi bi-circle me-1"></i>
+            Inactive
         </a>
     </li>
 </ul>
 
 <!-- Search Section -->
-<form method="get" asp-action="Index" class="mb-3 row g-2">
-    <div class="col-md-4">
-        <input asp-for="SearchString" class="form-control" placeholder="Search by name, email, or student ID" />
-    </div>
-    <div class="col-md-2">
-        <input type="hidden" asp-for="Status" value="@currentStatus" />
-        <button type="submit" class="btn btn-primary w-100">Search</button>
-    </div>
-    @if (!string.IsNullOrEmpty(Model.SearchString))
-    {
-        <div class="col-md-2">
-            <a asp-action="Index" asp-route-Status="@currentStatus" class="btn btn-outline-secondary w-100">Clear</a>
+<div class="search-filter-card mb-4">
+    <form method="get" asp-action="Index">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <label for="searchString" class="form-label metric-label" style="text-transform: none; font-size: 0.875rem;">Search Users</label>
+                <div class="position-relative">
+                    <i class="bi bi-search position-absolute" style="left: 12px; top: 50%; transform: translateY(-50%); color: var(--color-text-light);"></i>
+                    <input asp-for="SearchString" class="form-control" placeholder="Search by name, email, or student ID" style="padding-left: 2.5rem;" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <input type="hidden" asp-for="Status" value="@currentStatus" />
+                <button type="submit" class="btn btn-dark w-100">
+                    <i class="bi bi-search me-2"></i>Search
+                </button>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.SearchString))
+            {
+                <div class="col-md-3">
+                    <a asp-action="Index" asp-route-Status="@currentStatus" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-x-lg me-2"></i>Clear Search
+                    </a>
+                </div>
+            }
         </div>
-    }
-</form>
+    </form>
+</div>
 
-<!-- Users Table - Matching Borrowed Books Style -->
+<!-- Users Table -->
 @if (Model.Users.Any())
 {
-    <table class="table table-hover user-table">
-        <thead class="table-light">
-            <tr>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Student ID</th>
-                <th style="width: 120px;">Status</th>
-                <th style="width: 220px;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in Model.Users)
-            {
-                var allowedStatuses = transitions.ContainsKey(user.Status)
-                ? transitions[user.Status]
-                : Array.Empty<string>();
-
-                var statusClass = user.Status.ToLower() switch
-                {
-                    "pendingverification" => "user-status-pending",
-                    "active" => "user-status-active",
-                    "suspended" => "user-status-suspended",
-                    "banned" => "user-status-banned",
-                    "rejected" => "user-status-rejected",
-                    "inactive" => "user-status-inactive",
-                    _ => "user-status-pending"
-                };
-
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
                 <tr>
-                    <td>@user.FullName</td>
-                    <td>@user.Email</td>
-                    <td>@user.StudentIdNumber</td>
-                    <td>
-                        <span class="badge @statusClass">
-                            @(user.Status == "PendingVerification" ? "Pending" : user.Status)
-                        </span>
-                    </td>
-                    <td>
-                        <div class="user-actions">
-                            <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-info btn-sm btn-user-view">
-                                View
-                            </a>
-
-                            @if (allowedStatuses.Any())
-                            {
-                                <form asp-action="Verify" method="post" style="display:inline; flex: 1;">
-                                    <input type="hidden" name="id" value="@user.Id" />
-                                    @Html.AntiForgeryToken()
-
-                                    <select name="newStatus" class="form-select form-select-sm user-status-select"
-                                            onchange="if(this.value && confirm('Change user status to ' + this.value + '?')) this.form.submit();">
-                                        <option value="">-- Change Status --</option>
-                                        @foreach (var status in allowedStatuses)
-                                        {
-                                            <option value="@status">
-                                                @(status == "PendingVerification" ? "Pending Verification" : status)
-                                            </option>
-                                        }
-                                    </select>
-                                </form>
-                            }
-                            else
-                            {
-                                <small class="text-muted">No actions</small>
-                            }
-                        </div>
-                    </td>
+                    <th style="color: var(--color-text); font-weight: 600;">
+                        <i class="bi bi-person me-2"></i>Full Name
+                    </th>
+                    <th style="color: var(--color-text); font-weight: 600;">
+                        <i class="bi bi-envelope me-2"></i>Email
+                    </th>
+                    <th style="color: var(--color-text); font-weight: 600;">
+                        <i class="bi bi-card-text me-2"></i>Student ID
+                    </th>
+                    <th style="width: 120px; color: var(--color-text); font-weight: 600;">
+                        <i class="bi bi-circle-fill me-2"></i>Status
+                    </th>
+                    <th style="width: 220px; color: var(--color-text); font-weight: 600;">
+                        <i class="bi bi-gear me-2"></i>Actions
+                    </th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var user in Model.Users)
+                {
+                    var allowedStatuses = transitions.ContainsKey(user.Status)
+                    ? transitions[user.Status]
+                    : Array.Empty<string>();
+
+                    var statusInfo = user.Status.ToLower() switch
+                    {
+                        "pendingverification" => new { Class = "bg-warning", Icon = "bi-clock-history", Text = "Pending" },
+                        "active" => new { Class = "bg-success", Icon = "bi-check-circle", Text = "Active" },
+                        "suspended" => new { Class = "bg-info", Icon = "bi-pause-circle", Text = "Suspended" },
+                        "banned" => new { Class = "bg-danger", Icon = "bi-x-circle", Text = "Banned" },
+                        "rejected" => new { Class = "bg-danger", Icon = "bi-slash-circle", Text = "Rejected" },
+                        "inactive" => new { Class = "bg-secondary", Icon = "bi-circle", Text = "Inactive" },
+                        _ => new { Class = "bg-secondary", Icon = "bi-question-circle", Text = user.Status }
+                    };
+
+                    <tr class="slide-up">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: var(--color-surface); border-radius: 50%; color: var(--color-text-muted);">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold" style="color: var(--color-text);">@user.FullName</div>
+                                    <small class="text-muted">User ID: @user.Id.Substring(0, 8)...</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="color: var(--color-text);">@user.Email</td>
+                        <td>
+                            <span class="badge bg-light text-dark border" style="font-family: monospace;">
+                                @user.StudentIdNumber
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge @statusInfo.Class">
+                                <i class="@statusInfo.Icon me-1"></i>
+                                @statusInfo.Text
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2 align-items-center">
+                                <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-outline-secondary btn-sm btn-action">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                @if (allowedStatuses.Any())
+                                {
+                                    <form asp-action="Verify" method="post" class="flex-grow-1">
+                                        <input type="hidden" name="id" value="@user.Id" />
+                                        @Html.AntiForgeryToken()
+                                        <select name="newStatus" class="form-select form-select-sm" style="min-width: 140px;"
+                                                onchange="if(this.value && confirm('Change user status to ' + this.value + '?')) this.form.submit();">
+                                            <option value="">Change Status</option>
+                                            @foreach (var status in allowedStatuses)
+                                            {
+                                                <option value="@status">
+                                                    @(status == "PendingVerification" ? "Pending Verification" : status)
+                                                </option>
+                                            }
+                                        </select>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <small class="text-muted">No actions available</small>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 else
 {
-    <div class="text-center py-5">
-        <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
-        <h4 class="mt-3 text-muted">No Users Found</h4>
-        <p class="text-muted">
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <h4>No Users Found</h4>
+        <p>
             @if (!string.IsNullOrEmpty(Model.SearchString))
             {
-                <span>No users match your search criteria.</span>
+                <span>No users match your search criteria for "@Model.SearchString"</span>
             }
             else
             {
@@ -188,8 +354,8 @@ else
         </p>
         @if (!string.IsNullOrEmpty(Model.SearchString))
         {
-            <a asp-action="Index" asp-route-Status="@currentStatus" class="btn btn-outline-primary">
-                Clear Search
+            <a asp-action="Index" asp-route-Status="@currentStatus" class="btn btn-dark">
+                <i class="bi bi-arrow-left me-2"></i>Clear Search
             </a>
         }
     </div>

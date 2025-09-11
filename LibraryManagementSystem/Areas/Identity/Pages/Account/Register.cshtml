@@ -1,80 +1,128 @@
 ﻿@page
 @model LibraryManagementSystem.Areas.Identity.Pages.Account.RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Join Library";
 }
 
-<h1>@ViewData["Title"]</h1>
-
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
-            <h2>Create a new account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Input.FullName"></label>
-                <input asp-for="Input.FullName" class="form-control" placeholder="John D. Doe" />
-                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+<!-- Page Header Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-6">
+                <h1 class="display-6 fw-bold mb-2 text-dark">Join Our Library</h1>
+                <p class="text-muted mb-0">Create your account to start borrowing books and managing your reading collection</p>
             </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Input.StudentIdNumber"></label>
-                <input asp-for="Input.StudentIdNumber" class="form-control" placeholder="202107905" />
-                <span asp-validation-for="Input.StudentIdNumber" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Input.Email"></label>
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="name@example.com" />
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Input.Password"></label>
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" placeholder="password" />
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Input.ConfirmPassword"></label>
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="password" />
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Input.StudentIdImage"></label>
-                <input asp-for="Input.StudentIdImage" type="file" class="form-control" />
-                <span asp-validation-for="Input.StudentIdImage" class="text-danger"></span>
-            </div>
-
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
+        </div>
     </div>
+</section>
 
-    <div class="col-md-6 offset-md-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            @if ((Model.ExternalLogins?.Count ?? 0) == 0)
-            {
-                <p>There are no external authentication services configured.</p>
-            }
-            else
-            {
-                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                    <div>
-                        @foreach (var provider in Model.ExternalLogins!)
-                        {
-                            <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                        }
+<!-- Registration Form Section -->
+<section class="py-5" style="background-color: var(--color-surface);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="summary-card">
+                    <div class="text-center mb-4">
+                        <div class="summary-card-icon icon-users mx-auto mb-3" style="width: 60px; height: 60px;">
+                            <i class="bi bi-person-plus" style="font-size: 24px;"></i>
+                        </div>
+                        <h3 class="metric-label mb-2" style="font-size: 1.1rem; text-transform: none;">Create Your Library Account</h3>
+                        <p class="text-muted small">Fill in your details to get started</p>
                     </div>
-                </form>
-            }
-        </section>
+
+                    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Input.FullName" class="form-label text-muted small fw-semibold">FULL NAME</label>
+                                <input asp-for="Input.FullName" class="form-control" placeholder="John D. Doe" />
+                                <span asp-validation-for="Input.FullName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Input.StudentIdNumber" class="form-label text-muted small fw-semibold">STUDENT ID NUMBER</label>
+                                <input asp-for="Input.StudentIdNumber" class="form-control" placeholder="202107905" />
+                                <span asp-validation-for="Input.StudentIdNumber" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Email" class="form-label text-muted small fw-semibold">EMAIL ADDRESS</label>
+                            <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="name@example.com" />
+                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Input.Password" class="form-label text-muted small fw-semibold">PASSWORD</label>
+                                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" placeholder="Create password" />
+                                <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Input.ConfirmPassword" class="form-label text-muted small fw-semibold">CONFIRM PASSWORD</label>
+                                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="Confirm password" />
+                                <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.StudentIdImage" class="form-label text-muted small fw-semibold">STUDENT ID VERIFICATION</label>
+                            <div class="file-upload-wrapper">
+                                <input asp-for="Input.StudentIdImage" type="file" class="form-control" accept="image/*" />
+                                <div class="file-upload-icon">
+                                    <i class="bi bi-cloud-upload"></i>
+                                </div>
+                                <div class="file-upload-text">
+                                    <strong>Click to upload your Student ID</strong><br>
+                                    <small class="text-muted">PNG, JPG up to 5MB</small>
+                                </div>
+                            </div>
+                            <span asp-validation-for="Input.StudentIdImage" class="text-danger small"></span>
+                        </div>
+
+                        <button id="registerSubmit" type="submit" class="btn btn-dark btn-lg w-100 mb-4">
+                            <i class="bi bi-person-plus me-2"></i>Create Library Account
+                        </button>
+
+                        <div class="text-center">
+                            <div style="border-top: 1px solid var(--color-border); padding-top: 1rem;">
+                                <p class="text-muted small mb-2">Already have an account?</p>
+                                <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" class="btn btn-outline-secondary">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In Instead
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+        {
+            <div class="row justify-content-center mt-4">
+                <div class="col-lg-6 col-md-8">
+                    <div class="summary-card">
+                        <div class="text-center mb-3">
+                            <h4 class="metric-label mb-2" style="font-size: 1rem; text-transform: none;">Quick Registration</h4>
+                            <p class="text-muted small">Use your existing account from another service</p>
+                        </div>
+
+                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                            <div class="d-grid gap-2">
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    <button type="submit" class="btn btn-outline-secondary" name="provider" value="@provider.Name" title="Register using your @provider.DisplayName account">
+                                        <i class="bi bi-person-plus me-2"></i>Continue with @provider.DisplayName
+                                    </button>
+                                }
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
-</div>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

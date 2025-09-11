@@ -2,83 +2,175 @@
 @{
     ViewData["Title"] = "Book Details";
     var activeBorrowCount = ViewBag.ActiveBorrowCount ?? 0;
-    // Assume loanPeriodDays is a constant or from configuration - put 30 days here as example
     int loanPeriodDays = 30;
 }
 
-<a asp-action="Index" class="btn btn-link mb-3">&larr; Back to Browse</a>
-
-<div class="row">
-    <div class="col-md-4 text-center">
-        @if (!string.IsNullOrEmpty(Model.CoverImagePath))
-        {
-            <img src="@Model.CoverImagePath" alt="@Model.Title" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;" />
-        }
-        else
-        {
-            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 350px;">
-                <span class="text-muted">No Cover Image</span>
-            </div>
-        }
+<!-- Breadcrumb Section -->
+<section class="py-3" style="background-color: var(--color-surface);">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a asp-action="Index" class="text-decoration-none text-muted">
+                        <i class="bi bi-arrow-left me-1"></i>Browse Books
+                    </a>
+                </li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">@Model.Title</li>
+            </ol>
+        </nav>
     </div>
-    <div class="col-md-8">
-        <h1>@Model.Title</h1>
-        <p class="lead">by <em>@Model.Author</em></p>
-        <p>
-            <strong>Status: </strong>
-            @if (Model.AvailableCopies > 0)
-            {
-                <span class="text-success">Available</span>
-            }
-            else
-            {
-                <span class="text-danger">Unavailable</span>
-            }
-        </p>
+</section>
 
-        <h5>Book Details</h5>
-        <dl class="row">
-            <dt class="col-sm-4">Category</dt>
-            <dd class="col-sm-8">@Model.Category</dd>
+<!-- Book Details Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Book Cover Column -->
+            <div class="col-lg-4">
+                <div class="text-center sticky-top" style="top: 2rem;">
+                    @if (!string.IsNullOrEmpty(Model.CoverImagePath))
+                    {
+                        <img src="@Model.CoverImagePath"
+                             alt="@Model.Title"
+                             class="book-cover img-fluid shadow-sm"
+                             style="max-height: 400px; max-width: 100%; object-fit: contain; border-radius: var(--border-radius-md);" />
+                    }
+                    else
+                    {
+                        <div class="book-cover-placeholder d-flex align-items-center justify-content-center shadow-sm"
+                             style="height: 400px; width: 100%; max-width: 280px; margin: 0 auto; border-radius: var(--border-radius-md);">
+                            <i class="bi bi-book" style="font-size: 4rem; color: var(--color-text-light);"></i>
+                        </div>
+                    }
 
-            <dt class="col-sm-4">ISBN</dt>
-            <dd class="col-sm-8">@Model.ISBN</dd>
+                    <!-- Availability Status -->
+                    <div class="mt-3">
+                        @if (Model.AvailableCopies > 0)
+                        {
+                            <div class="d-flex align-items-center justify-content-center text-success mb-2">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                <span class="fw-semibold">Available Now</span>
+                            </div>
+                            <small class="text-muted">@Model.AvailableCopies of @Model.TotalCopies copies available</small>
+                        }
+                        else
+                        {
+                            <div class="d-flex align-items-center justify-content-center text-danger mb-2">
+                                <i class="bi bi-x-circle-fill me-2"></i>
+                                <span class="fw-semibold">Currently Unavailable</span>
+                            </div>
+                            <small class="text-muted">All @Model.TotalCopies copies are borrowed</small>
+                        }
+                    </div>
+                </div>
+            </div>
 
-            <dt class="col-sm-4">Available Copies</dt>
-            <dd class="col-sm-8">@Model.AvailableCopies/@Model.TotalCopies</dd>
+            <!-- Book Information Column -->
+            <div class="col-lg-8">
+                <!-- Title & Author -->
+                <div class="mb-4">
+                    <h1 class="display-6 fw-bold mb-2">@Model.Title</h1>
+                    <p class="lead text-muted mb-3">by @Model.Author</p>
+                    <span class="badge bg-light text-dark border">@Model.Category</span>
+                </div>
 
-            <dt class="col-sm-4">Loan Period</dt>
-            <dd class="col-sm-8">@loanPeriodDays days</dd>
-        </dl>
+                <!-- Book Details Card -->
+                <div class="summary-card mb-4">
+                    <h5 class="metric-label mb-3" style="font-size: 1rem; text-transform: none;">Book Information</h5>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid var(--color-border);">
+                                <span class="text-muted">ISBN:</span>
+                                <span class="fw-semibold">@Model.ISBN</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid var(--color-border);">
+                                <span class="text-muted">Category:</span>
+                                <span class="fw-semibold">@Model.Category</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid var(--color-border);">
+                                <span class="text-muted">Available Copies:</span>
+                                <span class="fw-semibold">@Model.AvailableCopies/@Model.TotalCopies</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid var(--color-border);">
+                                <span class="text-muted">Loan Period:</span>
+                                <span class="fw-semibold">@loanPeriodDays days</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        @if (!string.IsNullOrEmpty(Model.Description))
-        {
-            <h5>Description</h5>
-            <p>@Model.Description</p>
-        }
-
-        <div class="mt-4">
-            <p>You currently have @activeBorrowCount/3 borrows.</p>
-            @if (Model.AvailableCopies > 0)
-            {
-                if (activeBorrowCount >= 3)
+                <!-- Description -->
+                @if (!string.IsNullOrEmpty(Model.Description))
                 {
-                    <button class="btn btn-warning" disabled>Limit Reached</button>
+                    <div class="mb-4">
+                        <h5 class="metric-label mb-3" style="font-size: 1rem; text-transform: none;">Description</h5>
+                        <p class="text-muted lh-lg">@Model.Description</p>
+                    </div>
                 }
-                else
-                {
-                    <form asp-controller="Borrows" asp-action="Borrow" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="bookId" value="@Model.Id" />
-                        <button type="submit" class="btn btn-success">Borrow this Book</button>
-                    </form>
-                }
-            }
-            else
-            {
-                <button class="btn btn-secondary" disabled>No Copies Available</button>
-            }
-            <p class="mt-2"><small>You must return this after @loanPeriodDays days.</small></p>
+
+                <!-- Borrowing Status & Actions -->
+                <div class="summary-card">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="metric-label mb-2" style="font-size: 1rem; text-transform: none;">Your Borrowing Status</h5>
+                            <p class="text-muted mb-0">You currently have <strong>@activeBorrowCount out of 3</strong> books borrowed.</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="metric-value" style="font-size: 1.5rem;">@activeBorrowCount<span class="text-muted" style="font-size: 1rem;">/3</span></div>
+                            <small class="text-muted">Active Borrows</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row gap-3">
+                        @if (Model.AvailableCopies > 0)
+                        {
+                            if (activeBorrowCount >= 3)
+                            {
+                                <button class="btn btn-warning flex-grow-1" disabled>
+                                    <i class="bi bi-exclamation-triangle me-2"></i>Borrowing Limit Reached
+                                </button>
+                                <p class="text-muted small mb-0">You must return a book before borrowing another.</p>
+                            }
+                            else
+                            {
+                                <form asp-controller="Borrows" asp-action="Borrow" method="post" class="flex-grow-1">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="bookId" value="@Model.Id" />
+                                    <button type="submit" class="btn btn-success btn-lg w-100">
+                                        <i class="bi bi-download me-2"></i>Borrow This Book
+                                    </button>
+                                </form>
+                            }
+                        }
+                        else
+                        {
+                            <button class="btn btn-outline-secondary flex-grow-1" disabled>
+                                <i class="bi bi-x-circle me-2"></i>Currently Unavailable
+                            </button>
+                        }
+
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Continue Browsing
+                        </a>
+                    </div>
+
+                    @if (Model.AvailableCopies > 0 && activeBorrowCount < 3)
+                    {
+                        <div class="mt-3 pt-3" style="border-top: 1px solid var(--color-border);">
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <span>Return this book within @loanPeriodDays days to avoid late fees.</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>

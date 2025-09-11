@@ -1,41 +1,296 @@
 ﻿@model ApplicationUser
-
 @{
     ViewData["Title"] = "User Details";
+
+    var statusInfo = Model.Status.ToLower() switch
+    {
+        "pendingverification" => new { Class = "bg-warning", Icon = "bi-clock-history", Text = "Pending Verification" },
+        "active" => new { Class = "bg-success", Icon = "bi-check-circle", Text = "Active" },
+        "suspended" => new { Class = "bg-info", Icon = "bi-pause-circle", Text = "Suspended" },
+        "banned" => new { Class = "bg-danger", Icon = "bi-x-circle", Text = "Banned" },
+        "rejected" => new { Class = "bg-danger", Icon = "bi-slash-circle", Text = "Rejected" },
+        "inactive" => new { Class = "bg-secondary", Icon = "bi-circle", Text = "Inactive" },
+        _ => new { Class = "bg-secondary", Icon = "bi-question-circle", Text = Model.Status }
+    };
+
+    var allowedStatuses = ViewBag.AllowedStatuses as string[] ?? Array.Empty<string>();
 }
 
-<h2>User Details</h2>
+<!-- Breadcrumb Section -->
+<section class="py-3" style="background-color: var(--color-surface);">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-muted">
+                        <i class="bi bi-speedometer2 me-1"></i>Admin Dashboard
+                    </a> 
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="text-decoration-none text-muted">
+                        <i class="bi bi-people me-1"></i>User Management
+                        
 
-<table class="table">
-    <tr>
-        <th>Full Name</th>
-        <td>@Model.FullName</td>
-    </tr>
-    <tr>
-        <th>Email</th>
-        <td>@Model.Email</td>
-    </tr>
-    <tr>
-        <th>Student ID Number</th>
-        <td>@Model.StudentIdNumber</td>
-    </tr>
-    <tr>
-        <th>Status</th>
-        <td>@Model.Status</td>
-    </tr>
-    <tr>
-        <th>Student ID Image</th>
-        <td>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">
+                    <i class="bi bi-person me-1"></i>User Details
+                </li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<!-- Alert Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center mb-4 fade-in" style="border: var(--border-width) solid var(--color-success); border-radius: var(--border-radius-md); background-color: rgba(0, 179, 105, 0.1);">
+        <i class="bi bi-check-circle-fill me-2" style="color: var(--color-success);"></i>
+        <span>@TempData["Success"]</span>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger d-flex align-items-center mb-4 fade-in" style="border: var(--border-width) solid var(--color-danger); border-radius: var(--border-radius-md); background-color: rgba(255, 59, 48, 0.1);">
+        <i class="bi bi-exclamation-triangle-fill me-2" style="color: var(--color-danger);"></i>
+        <span>@TempData["Error"]</span>
+    </div>
+}
+
+<!-- Header Section -->
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div class="flex-grow-1">
+        <div class="d-flex align-items-center mb-3">
+            <div class="me-4 d-flex align-items-center justify-content-center" style="width: 64px; height: 64px; background: var(--color-surface); border-radius: 50%; color: var(--color-text-muted); font-size: 1.5rem;">
+                <i class="bi bi-person"></i>
+            </div>
+            <div>
+                <h1 class="display-6 fw-bold mb-1" style="color: var(--color-text);">@Model.FullName</h1>
+                <p class="text-muted mb-2">@Model.Email</p>
+                <span class="status-badge @statusInfo.Class me-2">
+                    <i class="@statusInfo.Icon me-1"></i>
+                    @statusInfo.Text
+                </span>
+                @if (Model.EmailConfirmed)
+                {
+                    <span class="badge bg-success">
+                        <i class="bi bi-check-circle me-1"></i>Email Verified
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-warning">
+                        <i class="bi bi-exclamation-triangle me-1"></i>Email Unverified
+                    </span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="row g-4">
+    <!-- Profile Information -->
+    <div class="col-lg-8">
+        <!-- Basic Information Card -->
+        <div class="summary-card mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h5 class="fw-bold mb-0" style="color: var(--color-text);">
+                    <i class="bi bi-person me-2"></i>Profile Information
+                </h5>
+                <small class="text-muted">User ID: @Model.Id.Substring(0, 8)...</small>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="mb-4">
+                        <label class="metric-label mb-2">Full Name</label>
+                        <div class="p-3 rounded d-flex align-items-center" style="background: var(--color-surface);">
+                            <i class="bi bi-person me-2 text-muted"></i>
+                            <span style="color: var(--color-text);">@Model.FullName</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-4">
+                        <label class="metric-label mb-2">Email Address</label>
+                        <div class="p-3 rounded d-flex align-items-center" style="background: var(--color-surface);">
+                            <i class="bi bi-envelope me-2 text-muted"></i>
+                            <span style="color: var(--color-text);">@Model.Email</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-4">
+                        <label class="metric-label mb-2">Student ID Number</label>
+                        <div class="p-3 rounded d-flex align-items-center" style="background: var(--color-surface);">
+                            <i class="bi bi-card-text me-2 text-muted"></i>
+                            <span class="badge bg-light text-dark border" style="font-family: monospace; font-size: 0.875rem;">
+                                @Model.StudentIdNumber
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-4">
+                        <label class="metric-label mb-2">Account Status</label>
+                        <div class="p-3 rounded d-flex align-items-center" style="background: var(--color-surface);">
+                            <i class="bi bi-circle-fill me-2 text-muted"></i>
+                            <span class="status-badge @statusInfo.Class">
+                                <i class="@statusInfo.Icon me-1"></i>
+                                @statusInfo.Text
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student ID Document Section -->
+        <div class="summary-card">
+            <h5 class="mb-3 fw-bold" style="color: var(--color-text);">
+                <i class="bi bi-image me-2"></i>Student ID Document
+            </h5>
             @if (!string.IsNullOrEmpty(Model.StudentIdImagePath))
             {
-                <img src="@Model.StudentIdImagePath" alt="Student ID" style="max-width:300px;" />
+                <div class="text-center">
+                    <img src="@Model.StudentIdImagePath"
+                         alt="Student ID Document for @Model.FullName"
+                         class="img-fluid rounded shadow-sm"
+                         style="max-width: 100%; max-height: 400px; border: var(--border-width) solid var(--color-border);" />
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Uploaded student identification document
+                        </small>
+                    </div>
+                </div>
             }
             else
             {
-                <span>No image uploaded.</span>
+                <div class="empty-state text-center py-4">
+                    <div class="empty-icon mb-3">
+                        <i class="bi bi-image" style="font-size: 2rem;"></i>
+                    </div>
+                    <h6 class="text-muted">No Document Available</h6>
+                    <p class="text-muted mb-0">This user has not uploaded a student ID document.</p>
+                </div>
             }
-        </td>
-    </tr>
-</table>
+        </div>
+    </div>
 
-<a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Status Management Card -->
+        <div class="summary-card mb-4">
+            <h5 class="mb-3 fw-bold" style="color: var(--color-text);">
+                <i class="bi bi-gear me-2"></i>Status Management
+            </h5>
+            <div class="d-flex flex-column gap-3">
+
+                @if (allowedStatuses.Any())
+                {
+                    <div class="border-top pt-3" style="border-color: var(--color-border) !important;">
+                        <label class="metric-label mb-2">Change Status</label>
+                        <form asp-action="Verify" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            @Html.AntiForgeryToken()
+                            <div class="d-flex gap-2">
+                                <select name="newStatus" class="form-select form-select-sm flex-grow-1" required>
+                                    <option value="">Select New Status</option>
+                                    @foreach (var status in allowedStatuses)
+                                    {
+                                        <option value="@status">
+                                            @(status == "PendingVerification" ? "Pending Verification" : status)
+                                        </option>
+                                    }
+                                </select>
+                                <button type="submit" class="btn btn-dark btn-sm btn-action" onclick="return confirm('Are you sure you want to change this user\'s status?')">
+                                    <i class="bi bi-check2"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Available transitions from @statusInfo.Text
+                        </small>
+                    </div>
+                }
+                else
+                {
+                    <div class="border-top pt-3" style="border-color: var(--color-border) !important;">
+                        <div class="p-3 rounded text-center" style="background: var(--color-surface);">
+                            <small class="text-muted">
+                                <i class="bi bi-lock me-1"></i>
+                                No status changes available for @statusInfo.Text users
+                            </small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Account Information Card -->
+        <div class="summary-card mb-4">
+            <h5 class="mb-3 fw-bold" style="color: var(--color-text);">
+                <i class="bi bi-info-circle me-2"></i>Account Information
+            </h5>
+            <div class="d-flex flex-column gap-3">
+                <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background: var(--color-surface);">
+                    <span class="text-muted fw-medium">User ID:</span>
+                    <code class="small" style="background: var(--color-white); padding: 4px 8px; border-radius: var(--border-radius-sm); border: var(--border-width) solid var(--color-border);">
+                        @Model.Id.Substring(0, 8)...
+                    </code>
+                </div>
+                <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background: var(--color-surface);">
+                    <span class="text-muted fw-medium">Email Status:</span>
+                    @if (Model.EmailConfirmed)
+                    {
+                        <span class="text-success fw-medium">
+                            <i class="bi bi-check-circle me-1"></i>Verified
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-warning fw-medium">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Unverified
+                        </span>
+                    }
+                </div>
+                <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background: var(--color-surface);">
+                    <span class="text-muted fw-medium">Account Type:</span>
+                    <span class="badge bg-light text-dark border">
+                        <i class="bi bi-person me-1"></i>Student
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="summary-card">
+            <h5 class="mb-3 fw-bold" style="color: var(--color-text);">
+                <i class="bi bi-lightning me-2"></i>Quick Actions
+            </h5>
+            <div class="d-grid gap-2">
+                <a href="mailto:@Model.Email" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center">
+                    <i class="bi bi-envelope me-2"></i>Send Email
+                </a>
+                <button type="button" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" onclick="navigator.clipboard.writeText('@Model.Id'); alert('User ID copied to clipboard!');">
+                    <i class="bi bi-clipboard me-2"></i>Copy User ID
+                </button>
+                <a asp-action="Index" asp-route-Status="@Model.Status" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center">
+                    <i class="bi bi-people me-2"></i>View Similar Status
+                </a>
+                @if (!string.IsNullOrEmpty(Model.StudentIdImagePath))
+                {
+                    <a href="@Model.StudentIdImagePath" target="_blank" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center">
+                        <i class="bi bi-download me-2"></i>Download ID Document
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

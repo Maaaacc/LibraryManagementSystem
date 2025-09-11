@@ -273,6 +273,28 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
+.nav-link:hover {
+    background-color: var(--color-surface) !important;
+    color: var(--color-text) !important;
+    transform: translateY(-1px);
+}
+
+.navbar-brand:hover {
+    color: var(--color-text) !important;
+    transform: translateY(-1px);
+}
+
+.dropdown-item:hover {
+    background-color: var(--color-surface) !important;
+    color: var(--color-text) !important;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md) !important;
+}
+
+
 /* ==========================================================================
    TABLES - CLEAN STYLING
    ========================================================================== */
@@ -620,5 +642,17 @@ body {
 
     .summary-card {
         padding: var(--space-md);
+    }
+}
+
+@media (max-width: 991px) {
+    .navbar-nav {
+        margin-top: var(--space-md);
+        padding-top: var(--space-md);
+        border-top: var(--border-width) solid var(--color-border);
+    }
+
+    .nav-link {
+        margin: var(--space-xs) 0 !important;
     }
 }
